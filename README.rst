@@ -1,6 +1,6 @@
-======================================================
-XON Juniper Installation Base (JIB) Maintenance script
-======================================================
+=====================
+XON Install Base Tool
+=====================
 
 Overview
 ========
@@ -14,12 +14,14 @@ Components
 These are some of the main scripts used in this tool.
 
 *XONJunosIBmaint.py* - the main JIB maintenance script. It:
+
 * logs into Juniper devices
 * grabs the output of "show chassis hardware"
 * saves the results locally, and
 * submits it to XON systems via secure API.
 
 *conf/XONJunosIBmaint.conf* - the main options file. Here you specify things such as:
+
 * Login method
 * API username/password
 * inventory file location
@@ -30,7 +32,7 @@ These are some of the main scripts used in this tool.
 *setup.py* - Installation script. Running this script will prompt
 a series of questions, and the answers will be used to automatically
 populate the *conf/XONJunosIBmaint.conf* file. Also checks if required
-dependancies are installed.
+dependencies are installed.
 
 *router.db* file - a file in the `RANCID router.db <http://www.shrubbery.net/rancid/man/router.db.5.html>`_
 format used as the source of IP addresses to log into.
@@ -77,7 +79,7 @@ Clone from github:
 
     $ git clone https://github.com/XON-systems/xibt.git
 
-Then ``cd`` into the XONjib directory and either run ``./setup.py``, or manually
+Then ``cd`` into the xibt directory and either run ``./setup.py``, or manually
 update ``conf/XONJunosIBmaint.conf`` with the appropriate values.
 
 
@@ -87,6 +89,7 @@ Options
 The XON Junos Installation Base maintenance script will log into network devices
 using SSH in order to gather inventory information.
 It can do this in one of two ways:
+
 # Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid`_ installation
 # SSH into the device directly from the local machine
 
@@ -124,10 +127,10 @@ To generate the router.db file automatically, run the ``XONdeviceDiscover.py`` s
 
 Auto populate configuration file
 --------------------------------
-To Answer questions regarding your installation, and have the configuration file auto-populated
+To answer questions regarding your installation, and have the configuration file auto-populated
 based on your answers, run ``./setup.py`` with no arguments:
 
-.. code::bash
+.. code:: bash
 
     $ ./setup.py
     In order to make use of the XON Juniper Install Base
