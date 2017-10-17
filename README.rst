@@ -75,7 +75,7 @@ Clone from github:
 
 .. code:: bash
 
-    $ git clone https://github.com/XON-systems/XONjib.git
+    $ git clone https://github.com/XON-systems/xibt.git
 
 Then ``cd`` into the XONjib directory and either run ``./setup.py``, or manually
 update ``conf/XONJunosIBmaint.conf`` with the appropriate values.
@@ -99,6 +99,7 @@ Use *SSH directly* option if you can't install RANCID or do not require
 jumphost functionality
 
 The options in the ``conf/XONJunosIBmaint.conf`` file for ``login_method`` are correspondingly:
+
 * jlogin
   or
 * paramiko
@@ -185,6 +186,7 @@ For most people once per month is good enough.
 .. code:: bash
 
     $ crontab -e
+
 
 .. code::bash
 
