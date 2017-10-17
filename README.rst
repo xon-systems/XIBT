@@ -188,6 +188,6 @@ For most people once per month is good enough.
     $ crontab -e
 
 
-.. code::bash
+.. code:: bash
 
     0 0 0 * * /path/to/XONdirectFetcher.py
