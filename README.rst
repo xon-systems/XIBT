@@ -90,8 +90,8 @@ The XON Junos Installation Base maintenance script will log into network devices
 using SSH in order to gather inventory information.
 It can do this in one of two ways:
 
-# Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid`_ installation
-# SSH into the device directly from the local machine
+#. Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid`_ installation
+#. SSH into the device directly from the local machine
 
 jlogin is required when connecting via a jumphost, then one can make use of the
 SSH config file for port forwarding.
