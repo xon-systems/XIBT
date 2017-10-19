@@ -90,21 +90,24 @@ The XON Junos Installation Base maintenance script will log into network devices
 using SSH in order to gather inventory information.
 It can do this in one of two ways:
 
-#. Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid`_ installation
-#. SSH into the device directly from the local machine
+#. Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid>`_ installation
+#. SSH into the device directly from the local machine (using python's paramiko)
 
 jlogin is required when connecting via a jumphost, then one can make use of the
 SSH config file for port forwarding.
 
 Use jlogin if there is already a RANCID installation on the same machine,
-or if you require jumphost functionality
+or if you require jumphost functionality.
+
 Use *SSH directly* option if you can't install RANCID or do not require
-jumphost functionality
+jumphost functionality.
 
 The options in the ``conf/XONJunosIBmaint.conf`` file for ``login_method`` are correspondingly:
 
 * jlogin
+
   or
+
 * paramiko
 
 Usage
@@ -115,7 +118,7 @@ Auto create router.db file
 
 To generate the router.db file automatically, run the ``XONdeviceDiscover.py`` script:
 
-.. code:: bash
+.. code:: text
 
     $./XONdeviceDiscover.py <ip|subnet/prefix> snmp-community router.db-file-location
 
@@ -130,7 +133,7 @@ Auto populate configuration file
 To answer questions regarding your installation, and have the configuration file auto-populated
 based on your answers, run ``./setup.py`` with no arguments:
 
-.. code:: bash
+.. code:: text
 
     $ ./setup.py
     In order to make use of the XON Juniper Install Base
