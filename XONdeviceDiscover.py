@@ -54,7 +54,7 @@ def discover():
                 junos_routers.append(ip.first())
             else:
                 print('Skipping', ip.first(), ':', "Not Junos")
-        except Exception, e:
+        except Exception as e:
             print('Skipping', ip.first(), ':', str(e))
     if junos_routers:
         f = open(sys.argv[3], 'w')
