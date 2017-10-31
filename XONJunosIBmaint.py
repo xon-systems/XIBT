@@ -153,7 +153,7 @@ def goGetThem(p, ips):
         logging.info("Connecting to: " + ip)
         xml = fo.run(ip)
         if xml:
-            with open("output/%s/%s.xml" % (p, ip), 'w') as f:
+            with open("output/%s/%s.xml" % (p, ip), 'wb') as f:
                 f.write(xml)
             if 'auth' in globals():
                 headers, response = api.execute('POST',
