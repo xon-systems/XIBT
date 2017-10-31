@@ -17,6 +17,14 @@ try:
 except NameError:
     pass
 
+def warn_dependency(project):
+    print("This script depends on tachyonic." + project)
+    print("But it was not found")
+    print("Please install with:")
+    print("  git clone https://github.com/TachyonicProject/tachyonic_" + project)
+    print("  cd tachyonic_" + project)
+    print("  pip install .")
+
 def checkDependancies():
     """
     We require tachyonic.client to be installed, so checking
@@ -24,15 +32,16 @@ def checkDependancies():
     """
 
     try:
+        import tachyonic.common
+    except:
+        warn_dependency("common")
+        sys.exit(0)
+    try:
         import tachyonic.client
     except:
-        print("This script depends on tachyonic.client")
-        print("But it was not found")
-        print("Please install with:")
-        print("  git clone https://github.com/TachyonicProject/tachyonic_client")
-        print("  cd tachyonic_client")
-        print("  pip install .")
+        warn_dependency("common")
         sys.exit(0)
+
 
 def gatherInfo():
     """
