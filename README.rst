@@ -42,8 +42,8 @@ on Junipers discovered in an IP address range via SNMPv2.
 
 Dependencies
 ============
-This script requires Python to be installed. Most modern Linux distributions
-come with Python already installed.
+This script requires Python 3 to be installed. Most modern Linux distributions
+come with Python 3 already installed.
 
 It also requires the python module *tachyonic_client*, which is the REST client
 used to make the API calls to the XON Inventory system. Install with:
@@ -58,7 +58,7 @@ can install tachyonic_client like this:
 .. code:: bash
 
     $ cd tachyonic_client
-    $ pip install .
+    $ pip3 install .
 
 *tachyonic_client* depends on *tachyonic_common*, which may be installed
 by repeating the above procedure, but with *tachyonic_common* instead of *tachyonic_client*.

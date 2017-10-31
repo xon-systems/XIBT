@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Setup script for XON Junos Installation Base maintenance script.
 #
@@ -39,7 +39,7 @@ def checkDependancies():
     try:
         import tachyonic.client
     except:
-        warn_dependency("common")
+        warn_dependency("client")
         sys.exit(0)
 
 
