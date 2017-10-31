@@ -60,6 +60,9 @@ can install tachyonic_client like this:
     $ cd tachyonic_client
     $ pip install .
 
+*tachyonic_client* depends on *tachyonic_common*, which may be installed
+by repeating the above procedure, but with *tachyonic_common* instead of *tachyonic_client*.
+
 Next, you require API login details from XON systems. To obtain this, email support at xon.co.za.
 
 If you would like to auto-create the router.db file with the *XONdeviceDiscover.py*, you need it's dependancies:
