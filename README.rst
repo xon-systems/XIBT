@@ -70,8 +70,8 @@ If you would like to auto-create the router.db file with the *XONdeviceDiscover.
 .. code:: bash
 
     $ sudo apt-get install libsnmp-dev
-    $ sudo pip install easysnmp
-    $ sudo pip install pyipcalc
+    $ sudo pip3 install easysnmp
+    $ sudo pip3 install pyipcalc
 
 Installation
 ============
