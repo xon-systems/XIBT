@@ -40,6 +40,33 @@ format used as the source of IP addresses to log into.
 *XONdeviceDiscover.py* - A script that can populate the *router.db* file based
 on Junipers discovered in an IP address range via SNMPv2.
 
+Options
+=======
+
+The XON Junos Installation Base maintenance script will log into network devices
+using SSH in order to gather inventory information.
+It can do this in one of two ways:
+
+#. Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid>`_ installation
+#. SSH into the device directly from the local machine (using python's paramiko)
+
+jlogin is required when connecting via a jumphost, then one can make use of the
+SSH config file for port forwarding.
+
+Use jlogin if there is already a RANCID installation on the same machine,
+or if you require jumphost functionality.
+
+Use *SSH directly* option if you can't install RANCID or do not require
+jumphost functionality.
+
+The options in the ``conf/XONJunosIBmaint.conf`` file for ``login_method`` are correspondingly:
+
+* jlogin
+
+  or
+
+* paramiko
+
 Dependencies
 ============
 This script requires Python 3 to be installed. Most modern Linux distributions
@@ -73,6 +100,13 @@ If you would like to auto-create the router.db file with the *XONdeviceDiscover.
     $ sudo pip3 install easysnmp
     $ sudo pip3 install pyipcalc
 
+If you choose to log in directly instead of making use of jlogin, you require the *paramiko* python library. Install it with:
+
+.. code:: bash
+
+    $ sudo pip3 install paramiko
+
+
 Installation
 ============
 
@@ -86,32 +120,7 @@ Then ``cd`` into the xibt directory and either run ``./setup.py``, or manually
 update ``conf/XONJunosIBmaint.conf`` with the appropriate values.
 
 
-Options
-=======
 
-The XON Junos Installation Base maintenance script will log into network devices
-using SSH in order to gather inventory information.
-It can do this in one of two ways:
-
-#. Use jlogin that comes with the `RANCID <http://www.shrubbery.net/rancid>`_ installation
-#. SSH into the device directly from the local machine (using python's paramiko)
-
-jlogin is required when connecting via a jumphost, then one can make use of the
-SSH config file for port forwarding.
-
-Use jlogin if there is already a RANCID installation on the same machine,
-or if you require jumphost functionality.
-
-Use *SSH directly* option if you can't install RANCID or do not require
-jumphost functionality.
-
-The options in the ``conf/XONJunosIBmaint.conf`` file for ``login_method`` are correspondingly:
-
-* jlogin
-
-  or
-
-* paramiko
 
 Usage
 =====

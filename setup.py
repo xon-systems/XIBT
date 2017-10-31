@@ -23,7 +23,7 @@ def warn_dependency(project):
     print("Please install with:")
     print("  git clone https://github.com/TachyonicProject/tachyonic_" + project)
     print("  cd tachyonic_" + project)
-    print("  pip install .")
+    print("  pip3 install .")
 
 def checkDependancies():
     """
