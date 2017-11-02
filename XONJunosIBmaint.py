@@ -128,7 +128,7 @@ class FetchOutput:
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(ip, port=22, username=self.username, password=self.password)
                 ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml')
-                return out.read()
+                return out.read().decode()
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
                 return ''
@@ -154,7 +154,7 @@ def goGetThem(p, ips):
         logging.info("Connecting to: " + ip)
         xml = fo.run(ip)
         if xml:
-            with open("output/%s/%s.xml" % (p, ip), 'wb') as f:
+            with open("output/%s/%s.xml" % (p, ip), 'w') as f:
                 f.write(xml)
             if 'auth' in globals():
                 headers, response = api.execute('POST',
@@ -189,6 +189,10 @@ if __name__ == '__main__':
         try:
             api = Client('http://quark.xon.co.za/api')
             auth = api.authenticate(api_user, api_pass, domain)
+            # If we don't have valid credentials, auth
+            # will be a string with 404 in it
+            # If there is no connectivity to quark,
+            # auth will not exist
             if not isinstance(auth, OrderedDict):
                 del auth
         except:
