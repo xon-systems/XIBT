@@ -23,6 +23,7 @@ import logging.config
 import os
 import re
 from subprocess import check_output, CalledProcessError, STDOUT
+from collections import OrderedDict
 
 from tachyonic.client import Client
 
@@ -98,7 +99,7 @@ class FetchOutput:
                 xml = ''
                 inxml = False
                 gotxml = False
-                for line in output.split('\n'):
+                for line in output.decode().split('\n'):
                     if re.match('<rpc-reply', line):
                         inxml = True
                         gotxml = True
@@ -188,6 +189,8 @@ if __name__ == '__main__':
         try:
             api = Client('http://quark.xon.co.za/api')
             auth = api.authenticate(api_user, api_pass, domain)
+            if not isinstance(auth, OrderedDict):
+                del auth
         except:
             msg = "Unable to connect to the XON API. "
             msg += "Please make sure there is connectivity to quark.xon.co.za "
