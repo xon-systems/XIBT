@@ -187,7 +187,7 @@ if __name__ == '__main__':
         # Connect to and log into
         # API to XON's inventory manager:
         try:
-            api = Client('http://quark.xon.co.za/api')
+            api = Client('https://quark.xon.co.za/api')
             auth = api.authenticate(api_user, api_pass, domain)
             # If we don't have valid credentials, auth
             # will be a string with 404 in it
