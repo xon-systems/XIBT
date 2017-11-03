@@ -20,47 +20,106 @@
 from __future__ import absolute_import, division, print_function
 from builtins import *
 from easysnmp import Session
+import logging
+import logging.config
+import os.path
 import pyipcalc
 import sys
 import re
 
-junos_routers = []
+next_ip = None
+file_open = "a"
 
 
-def discover():
+def getOptions():
+    """
+    Function to get some options from user
+
+    """
+    global file_open
+    global next_ip
+    global subnet
+    ans1 = "x"
+    ans2 = "x"
+    print("Warning, the %s file exists already." % (sys.argv[3],))
+    while ans1 != 'a' and ans1 != 'o' and ans1 != '':
+        ans1 = input((" (o)verwrite or (a)ppend?\n(If you choose "
+                      "append you have the option to choose wether"
+                      " to continue where a previous scan left off)\n"
+                      "Type o or a: (a) : ")).lower()
+    if ans1 == 'a' or ans1 == '':
+        while ans2 != 'y' and ans2 != 'n' and ans2 != '':
+            ans2 = input(("Do you want to continue from"
+                          " the last IP in the file?\n"
+                          "(y)es or (n)o: (n): ")).lower()
+        if ans2 == "y":
+            next_ip = nextIP()
+            if next_ip not in subnet:
+                raise Exception(('The last ip is not '
+                                 'in the current subnet'),
+                                next_ip, subnet)
+    else:
+        file_open = 'w'
+
+    try:
+        f = open(sys.argv[3], file_open)
+        f.close()
+    except Exception as e:
+        logging.error("Could not open file %s: %s" % (sys.argv[3], str(e)))
+        sys.exit(0)
+
+
+def nextIP():
+    """
+    Function to find the last detected IP
+    From a previous scan so that the scan may
+    Continue where it left off.
+    :return: Last found IP as IPNetwork object, or None
+    """
+
+    with open(sys.argv[3]) as f:
+        lines = f.readlines()
+    last = re.match('(.*):juniper:up', lines[-1])
+    if last and pyipcalc.validate_ip(last.group(1)):
+        int_ip = pyipcalc.ip_to_int(last.group(1))
+        next_ip = pyipcalc.int_to_ip(int_ip + 1)
+        return pyipcalc.IPNetwork(next_ip)
+    else:
+        return None
+
+
+def discover(subnet):
     """
     Function that discovers the devices in the subnet
     by doing SNMP get on the system description OID.
+    Subnet obtained from system argument
 
-    Takes no arguments, subnet obtained from system argument
+    :param subnet: IPNetwork object
+    :return: None
+
     """
-    subnet = sys.argv[1]
-    # If IPv4 and no mask, we assume host
-    if '.' in subnet and '/' not in subnet:
-        subnet += '/32'
-    # If IPv6 and no mask, we assume host
-    elif ':' in subnet and '/' not in subnet:
-        subnet += '/128'
-    # Rudementary check for Valid IP - has to at least have . or :
-    elif ':' not in subnet and '.' not in subnet:
-        raise Exception('Ivalid IP', subnet)
-    subnet = pyipcalc.IPNetwork(subnet)
+    global file_open
+    global next_ip
+
+    # Fixing subnet if we need to continue
+    # from a previous scan
+    if next_ip:
+        subnet = subnet[next_ip:]
+
     # Running through al the hosts in the subnet
     for ip in subnet:
         session = Session(hostname=ip.first(), community=sys.argv[2], version=2)
         try:
             sysdescription = session.get('1.3.6.1.2.1.1.1.0')
             if re.search('JUNOS ([^ ]+)', sysdescription.value):
-                junos_routers.append(ip.first())
+                logging.info("Found Juniper at %s" % (ip.first(),))
+                with open(sys.argv[3], 'a') as f:
+                    f.write(ip.first() + ':juniper:up\n')
             else:
-                print('Skipping', ip.first(), ':', "Not Junos")
+                logging.info("Skipping %s: Not Junos" % (ip.first(),))
         except Exception as e:
-            print('Skipping', ip.first(), ':', str(e))
-    if junos_routers:
-        f = open(sys.argv[3], 'w')
-        for r in junos_routers:
-            f.write(r + ':juniper:up\n')
-        f.close()
+            logging.info('Skipping: %s: %s' % (ip.first(), str(e)))
+
 
 # Main progaram
 if __name__ == '__main__':
@@ -81,6 +140,16 @@ if __name__ == '__main__':
     - router.db-file-location: the location of the output router.db file
     ''')
     else:
-        ans = input("Warning, this will overwrite the current %s file. Proceed? (y/N):" % (sys.argv[3],))
-        if ans.lower() == 'y':
-            discover()
+        logging.config.fileConfig('conf/logging.conf')
+        subnet = sys.argv[1]
+        try:
+            subnet = pyipcalc.IPNetwork(subnet)
+        except:
+            raise Exception('Ivalid IP', subnet)
+        # Checking if the file already exists
+        # If so we'll give option to overwrite or append
+        # In case of Append can contine where we left off
+        if os.path.isfile(sys.argv[3]):
+            getOptions()
+
+        discover(subnet)
