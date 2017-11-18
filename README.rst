@@ -72,23 +72,20 @@ Dependencies
 This script requires Python 3 to be installed. Most modern Linux distributions
 come with Python 3 already installed.
 
-It also requires the python module *tachyonic_client*, which is the REST client
+It also requires the python module *tachyonic_neutrino*, which has the REST client
 used to make the API calls to the XON Inventory system. Install with:
 
 .. code:: bash
 
-    $ git clone https://github.com/TachyonicProject/tachyonic_client.git
+    $ git clone -b development https://github.com/TachyonicProject/tachyonic_neutrino.git
 
 Once you have cloned the repo or downloaded a tarball from GitHub, you
 can install tachyonic_client like this:
 
 .. code:: bash
 
-    $ cd tachyonic_client
+    $ cd tachyonic_neutrino
     $ pip3 install .
-
-*tachyonic_client* depends on *tachyonic_common*, which may be installed
-by repeating the above procedure, but with *tachyonic_common* instead of *tachyonic_client*.
 
 Next, you require API login details from XON systems. To obtain this, email support at xon.co.za.
 

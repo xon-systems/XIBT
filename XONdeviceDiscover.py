@@ -27,6 +27,11 @@ import pyipcalc
 import sys
 import re
 
+# The output directory needs to exist
+# this is where we are saving the log
+if not os.path.exists("output"):
+    os.makedirs("output")
+
 next_ip = None
 file_open = "a"
 

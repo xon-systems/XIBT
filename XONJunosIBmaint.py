@@ -25,7 +25,7 @@ import re
 from subprocess import check_output, CalledProcessError, STDOUT
 from collections import OrderedDict
 
-from tachyonic.client import Client
+from tachyonic.neutrino.client import Client
 
 # The output directory needs to exist,
 # this is where we are saving the results

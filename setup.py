@@ -25,21 +25,17 @@ def warn_dependency(project):
     print("  cd tachyonic_" + project)
     print("  pip3 install .")
 
+
 def checkDependancies():
     """
-    We require tachyonic.client to be installed, so checking
+    We require tachyonic.neutrino.client to be installed, so checking
     If not, we warn and exit
     """
 
     try:
-        import tachyonic.common
+        import tachyonic.neutrino.client
     except:
-        warn_dependency("common")
-        sys.exit(0)
-    try:
-        import tachyonic.client
-    except:
-        warn_dependency("client")
+        warn_dependency("neutrino")
         sys.exit(0)
 
 
