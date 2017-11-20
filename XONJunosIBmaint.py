@@ -135,9 +135,16 @@ class FetchOutput:
                 ssh = paramiko.SSHClient()
                 ssh.load_system_host_keys()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                # First issuing 'show version' in order to obtain the
+                # hostname so that we can use that as the file name
                 ssh.connect(ip, port=22, username=self.username, password=self.password)
                 ssh_stdin, version, ssh_stderr = ssh.exec_command('show version')
-                hostname = version.readlines(1)[0].split(' ')[1][:-1]
+                version = version.read().decode()
+                try:
+                    hostname = re.search('Hostname: (.*)\n', version).group(1)
+                except:
+                    pass
+                # Finally executing 'show chassis hardware'
                 ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml "|" no-more')
                 return (hostname, out.read().decode())
             except Exception as err:
