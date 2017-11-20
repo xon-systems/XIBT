@@ -93,12 +93,21 @@ class FetchOutput:
         if self.method == "jlogin":
             try:
                 output = check_output(
-                    ['jlogin', '-c', "show chassis hardware detail | display xml", ip],
+                    ['jlogin', '-c',
+                     "show chassis hardware detail | display xml | no-more",
+                     ip
+                    ],
                     stderr=STDOUT)
 
                 xml = ''
                 inxml = False
                 gotxml = False
+                hostname = ip
+
+                hostname_search = re.search('@([^>]+)> show', output.decode())
+                if hostname_search:
+                    hostname = hostname_search.group(1)
+
                 for line in output.decode().split('\n'):
                     if re.match('<rpc-reply', line):
                         inxml = True
@@ -112,22 +121,22 @@ class FetchOutput:
                 if not gotxml:
                     logging.error("Did not receive XML response from %s" % (ip,))
                     logging.error('Output was "%s"' % (output,))
-                    return ''
+                    return (hostname, '')
                 else:
-                    return xml
+                    return (hostname, xml)
             except (OSError, CalledProcessError) as e:
                 if hasattr(e, 'output'):
                     logging.error('jlogin returned with error code %s: "%s"' % (e.returncode, e.output))
                 else:
                     logging.error('jlogin returned with error code %s: "%s"' % (e.args[0], e.args[1]))
-                return ''
+                return (hostname, '')
         elif self.method == "paramiko":
             try:
                 ssh = paramiko.SSHClient()
                 ssh.load_system_host_keys()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(ip, port=22, username=self.username, password=self.password)
-                ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml')
+                ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml "|" no-more')
                 return out.read().decode()
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
@@ -152,9 +161,9 @@ def goGetThem(p, ips):
     """
     for ip in ips:
         logging.info("Connecting to: " + ip)
-        xml = fo.run(ip)
+        hostname, xml = fo.run(ip)
         if xml:
-            with open("output/%s/%s.xml" % (p, ip), 'w') as f:
+            with open("output/%s/%s.xml" % (p, hostname), 'w') as f:
                 f.write(xml)
             if 'auth' in globals():
                 headers, response = api.execute('POST',
