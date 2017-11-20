@@ -142,7 +142,7 @@ class FetchOutput:
                 return (hostname, out.read().decode())
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
-                return ''
+                return ('', '')
         else:
             logging.error("Invalid Login method in config file: %s"
                           % (self.method,))
