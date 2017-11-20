@@ -90,6 +90,7 @@ class FetchOutput:
         self.password = password
 
     def run(self, ip):
+        hostname = ip
         if self.method == "jlogin":
             try:
                 output = check_output(
@@ -102,7 +103,6 @@ class FetchOutput:
                 xml = ''
                 inxml = False
                 gotxml = False
-                hostname = ip
 
                 hostname_search = re.search('@([^>]+)> show', output.decode())
                 if hostname_search:
@@ -136,8 +136,10 @@ class FetchOutput:
                 ssh.load_system_host_keys()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(ip, port=22, username=self.username, password=self.password)
+                ssh_stdin, version, ssh_stderr = ssh.exec_command('show version')
+                hostname = version.readlines(1)[0].split(' ')[1][:-1]
                 ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml "|" no-more')
-                return out.read().decode()
+                return (hostname, out.read().decode())
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
                 return ''
