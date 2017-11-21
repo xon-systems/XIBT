@@ -146,6 +146,7 @@ class FetchOutput:
                     pass
                 # Finally executing 'show chassis hardware'
                 ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml "|" no-more')
+                ssh.close()
                 return (hostname, out.read().decode())
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
@@ -174,7 +175,6 @@ def goGetThem(p, ips):
         if xml:
             with open("output/%s/%s.xml" % (p, hostname), 'w') as f:
                 f.write(xml)
-            f.close()
             if 'auth' in globals():
                 headers, response = api.execute('POST',
                                                 '/some/path',
