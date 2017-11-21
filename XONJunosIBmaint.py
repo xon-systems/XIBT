@@ -174,6 +174,7 @@ def goGetThem(p, ips):
         if xml:
             with open("output/%s/%s.xml" % (p, hostname), 'w') as f:
                 f.write(xml)
+            f.close()
             if 'auth' in globals():
                 headers, response = api.execute('POST',
                                                 '/some/path',
