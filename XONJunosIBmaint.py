@@ -25,7 +25,7 @@ import re
 from subprocess import check_output, CalledProcessError, STDOUT
 from collections import OrderedDict
 
-from tachyonic.neutrino.client import Client
+from psychokinetic.client import Client
 
 # The output directory needs to exist,
 # this is where we are saving the results
@@ -146,8 +146,9 @@ class FetchOutput:
                     pass
                 # Finally executing 'show chassis hardware'
                 ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml "|" no-more')
+                out = out.read().decode()
                 ssh.close()
-                return (hostname, out.read().decode())
+                return (hostname, out)
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
                 return ('', '')

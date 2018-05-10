@@ -72,19 +72,19 @@ Dependencies
 This script requires Python 3 to be installed. Most modern Linux distributions
 come with Python 3 already installed.
 
-It also requires the python module *tachyonic_neutrino*, which has the REST client
+It also requires the python module *psychokinetic*, which has the REST client
 used to make the API calls to the XON Inventory system. Install with:
 
 .. code:: bash
 
-    $ git clone -b development https://github.com/TachyonicProject/tachyonic_neutrino.git
+    $ git clone -b development https://github.com/TachyonicProject/psychokinetic.git
 
 Once you have cloned the repo or downloaded a tarball from GitHub, you
-can install tachyonic_client like this:
+can install psychokinetic like this:
 
 .. code:: bash
 
-    $ cd tachyonic_neutrino
+    $ cd psychokinetic
     $ pip3 install .
 
 Next, you require API login details from XON systems. To obtain this, email support at xon.co.za.

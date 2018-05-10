@@ -18,11 +18,11 @@ except NameError:
     pass
 
 def warn_dependency(project):
-    print("This script depends on tachyonic." + project)
+    print("This script depends on the Tachyonic project " + project)
     print("But it was not found")
     print("Please install with:")
-    print("  git clone https://github.com/TachyonicProject/tachyonic_" + project)
-    print("  cd tachyonic_" + project)
+    print("  git clone https://github.com/TachyonicProject/" + project)
+    print("  cd " + project)
     print("  pip3 install .")
 
 
@@ -33,9 +33,14 @@ def checkDependancies():
     """
 
     try:
-        import tachyonic.neutrino.client
+        import luxon
     except:
-        warn_dependency("neutrino")
+        warn_dependency("luxon")
+        sys.exit(0)
+    try:
+        from psychokinetic.client import Client
+    except:
+        warn_dependency("psychokinetic")
         sys.exit(0)
 
 
