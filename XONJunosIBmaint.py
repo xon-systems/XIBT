@@ -14,7 +14,6 @@
 #
 # ./XONJunosIBmaint.py
 #
-# This script will be added to cron by the installation script
 # Supports only Junos for the moment
 
 import json
