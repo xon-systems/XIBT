@@ -205,4 +205,4 @@ For most people once per month is good enough.
 
 .. code:: bash
 
-    0 0 0 * * /path/to/XONdirectFetcher.py
+    0 0 0 * * /path/to/XONJunosIBmaint.py
