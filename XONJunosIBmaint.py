@@ -176,10 +176,8 @@ def goGetThem(p, ips):
             with open("output/%s/%s.xml" % (p, hostname), 'w') as f:
                 f.write(xml)
             if 'auth' in globals():
-                headers, response = api.execute('POST',
-                                                '/some/path',
-                                                obj={'xml': xml},
-                                                endpoint='some_endpoint')
+                api.execute('POST','/some/path',data={'xml': xml},
+                                                endpoint='someEndpoint')
 
 
 # Main Program
@@ -189,6 +187,7 @@ if __name__ == '__main__':
     domain = options['domain']
     api_user = options['api_username']
     api_pass = options['api_password']
+    api_tenant_id = options['api_tenant_id']
     # Checking to see if the config file has been updated with
     # API login creds
     if domain == 'obtainThisFromXON':
@@ -207,20 +206,21 @@ if __name__ == '__main__':
         # API to XON's inventory manager:
         try:
             api = Client('https://quark.xon.co.za/api')
-            auth = api.authenticate(api_user, api_pass, domain)
-            # If we don't have valid credentials, auth
-            # will be a string with 404 in it
-            # If there is no connectivity to quark,
-            # auth will not exist
-            if not isinstance(auth, OrderedDict):
-                del auth
-        except:
+            api.password(api_user, api_pass, domain)
+            auth = api.scope(domain,api_tenant_id)
+            # If we don't have valid credentials, api.password will raise
+            # luxon.exceptions.HTTPError: Access Denied Invalid credentials provided
+            # so auth will not exist. If there is no connectivity to quark,
+            # auth will also not exist
+            api.collect_endpoints('Region1','public')
+        except Exception as e:
             msg = "Unable to connect to the XON API. "
             msg += "Please make sure there is connectivity to quark.xon.co.za "
             msg += "and that the API credentials are valid."
             logging.error(msg)
             msg = "Unable to connect to the XON API. Only logging results locally."
             logging.info(msg)
+            logging.error("Error was '%s'" % e)
         for p in options['groups']:
             logging.info("Starting with: %s" % (p,))
             if not os.path.exists("output/%s" % (p,)):
