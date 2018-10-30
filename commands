@@ -3,4 +3,4 @@ show configuration | except SECRET | display set | no-more
 show configuration | except SECRET | display inheritance | display set | no-more
 show chassis hardware detail | no-more
 show chassis hardware detail | display xml | no-more
-#request support information | no-more
+request support information | no-more
