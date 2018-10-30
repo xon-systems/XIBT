@@ -2,7 +2,7 @@
 #
 # XON Junos Installation Base maintenance script.
 #
-# Run this script to fetch device hardware info and
+# Run this script to fetch device info and
 # upload to XON's Inventory manager.
 #
 # Options are parsed from the configuration file
@@ -89,46 +89,47 @@ class FetchOutput:
         self.password = password
 
     def run(self, ip):
-        hostname = ip
+        filename = ip
+        hostname = ""
+        complete_output = ""
         if self.method == "jlogin":
             try:
                 output = check_output(
-                    ['jlogin', '-c',
-                     "show chassis hardware detail | display xml | no-more",
+                    ['jlogin', '-x',
+                     'commands',
                      ip
                     ],
                     stderr=STDOUT)
 
-                xml = ''
-                inxml = False
-                gotxml = False
+                incmd = False
+                got_output = False
 
-                hostname_search = re.search('@([^>]+)> show', output.decode())
-                if hostname_search:
-                    hostname = hostname_search.group(1)
+                filename_search = re.search('@([^>]+)> show', output.decode())
+                if not hostname and filename_search:
+                    filename = hostname = filename_search.group(1)
 
                 for line in output.decode().split('\n'):
-                    if re.match('<rpc-reply', line):
-                        inxml = True
-                        gotxml = True
-                    elif re.match('</rpc-reply>', line):
-                        inxml = False
-                        xml += line + '\n'
-                    if inxml:
-                        xml += line + '\n'
+                    cmd_start = re.search('%s> (show|request)' % (hostname,), line)
+                    if cmd_start:
+                        incmd = True
+                        got_output = True
+                    elif re.search('%s> quit' % (hostname,), line):
+                        incmd = False
+                    if incmd:
+                        complete_output += line + '\n'
 
-                if not gotxml:
+                if not got_output:
                     logging.error("Did not receive XML response from %s" % (ip,))
                     logging.error('Output was "%s"' % (output,))
-                    return (hostname, '')
+                    return (filename, '')
                 else:
-                    return (hostname, xml)
+                    return (filename, complete_output)
             except (OSError, CalledProcessError) as e:
                 if hasattr(e, 'output'):
                     logging.error('jlogin returned with error code %s: "%s"' % (e.returncode, e.output))
                 else:
                     logging.error('jlogin returned with error code %s: "%s"' % (e.args[0], e.args[1]))
-                return (hostname, '')
+                return (filename, '')
         elif self.method == "paramiko":
             try:
                 ssh = paramiko.SSHClient()
@@ -140,14 +141,19 @@ class FetchOutput:
                 ssh_stdin, version, ssh_stderr = ssh.exec_command('show version')
                 version = version.read().decode()
                 try:
-                    hostname = re.search('Hostname: (.*)\n', version).group(1)
+                    filename = re.search('Hostname: (.*)\n', version).group(1)
                 except:
                     pass
-                # Finally executing 'show chassis hardware'
-                ssh_stdin, out, ssh_stderr = ssh.exec_command('show chassis hardware detail "|" display xml "|" no-more')
-                out = out.read().decode()
+                # Finally executing commands
+                with open("commands") as f:
+                    commands = f.readlines()
+                for c in commands:
+                    ssh_stdin, out, ssh_stderr = ssh.exec_command(c)
+                    complete_output += c + '\n'
+                    complete_output += out.read().decode()
+                    complete_output += '\n\n\n'
                 ssh.close()
-                return (hostname, out)
+                return (filename, complete_output)
             except Exception as err:
                 logging.error("Error parsing command output [%s]:%s" % (ip, err))
                 return ('', '')
@@ -161,8 +167,8 @@ def goGetThem(p, ips):
     """
     The Function to connect to the network devices
     in order to
-        capture the output of
-        "show chassis hardware"
+        capture the output of the commands in the file
+        "commands"
         save it locally, and
         push it to XON API
 
@@ -171,13 +177,14 @@ def goGetThem(p, ips):
     """
     for ip in ips:
         logging.info("Connecting to: " + ip)
-        hostname, xml = fo.run(ip)
+        filename, xml = fo.run(ip)
         if xml:
-            with open("output/%s/%s.xml" % (p, hostname), 'w') as f:
+            with open("output/%s/%s.xml" % (p, filename), 'w') as f:
                 f.write(xml)
             if 'auth' in globals():
-                api.execute('POST','/some/path',data={'xml': xml},
+                r = api.execute('POST','/some/path',data={'xml': xml},
                                                 endpoint='someEndpoint')
+                logging.info("I got back %s" % r.json)
 
 
 # Main Program
