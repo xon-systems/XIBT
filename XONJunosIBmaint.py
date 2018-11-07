@@ -137,7 +137,8 @@ class FetchOutput:
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 # First issuing 'show version' in order to obtain the
                 # hostname so that we can use that as the file name
-                ssh.connect(ip, port=22, username=self.username, password=self.password)
+                ssh.connect(ip, port=22, username=self.username,
+                            password=self.password, timeout=10)
                 ssh_stdin, version, ssh_stderr = ssh.exec_command('show version')
                 version = version.read().decode()
                 try:

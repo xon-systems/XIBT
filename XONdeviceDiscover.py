@@ -113,7 +113,8 @@ def discover(subnet):
 
     # Running through al the hosts in the subnet
     for ip in subnet:
-        session = Session(hostname=ip.first(), community=sys.argv[2], version=2)
+        session = Session(hostname=ip.first(), community=sys.argv[2],
+                          version=2, retries=1)
         try:
             sysdescription = session.get('1.3.6.1.2.1.1.1.0')
             if re.search('JUNOS ([^ ]+)', sysdescription.value):
