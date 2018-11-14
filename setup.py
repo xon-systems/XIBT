@@ -21,7 +21,7 @@ def warn_dependency(project):
     print("This script depends on the Tachyonic project " + project)
     print("But it was not found")
     print("Please install with:")
-    print("  git clone https://github.com/TachyonicProject/" + project)
+    print("  git clone https://github.com/TachyonicProject/%s.git" % project)
     print("  cd " + project)
     print("  pip3 install .")
 
