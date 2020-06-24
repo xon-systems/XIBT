@@ -4,7 +4,7 @@
 #
 # Run this script to prompt questions
 # and auto configure the conf file for
-# the JIB maintenance script
+# the XIBT maintenance script
 
 import json
 import os
@@ -17,39 +17,11 @@ try:
 except NameError:
     pass
 
-def warn_dependency(project):
-    print("This script depends on the Tachyonic project " + project)
-    print("But it was not found")
-    print("Please install with:")
-    print("  git clone https://github.com/TachyonicProject/%s.git" % project)
-    print("  cd " + project)
-    print("  pip3 install .")
-
-
-def checkDependancies():
-    """
-    We require tachyonic.neutrino.client to be installed, so checking
-    If not, we warn and exit
-    """
-
-    try:
-        import luxon
-    except:
-        warn_dependency("luxon")
-        sys.exit(0)
-    try:
-        from psychokinetic.client import Client
-    except:
-        warn_dependency("psychokinetic")
-        sys.exit(0)
-
-
 def gatherInfo():
     """
     Gathers information that is required in config file
     from the user.
     Such as:
-       XON API login creds
        Ask user which SSH option they are opting for.
          jlogin uses .cloginrc file to obtain user login creds,
          but netmiko requires user to provde login details.
@@ -58,15 +30,6 @@ def gatherInfo():
     :return: Dictionary with answers.
     """
     options = {}
-    print('In order to make use of the XON Juniper Install Base')
-    print('script, you require API login details from XON Systems')
-    print('If you do not have these already, please email')
-    print('support@xon.co.za in order to obtain it.')
-    options['api_creds'] = {}
-    options['api_creds']['username'] = input("API login username: ")
-    options['api_creds']['password'] = input("API login password: ")
-    options['api_creds']['domain'] = input("API login domain id: ")
-    print('')
     ans = ''
     print("The XON Junos Installation Base maintenance script will log into")
     print("network devices in order to gather inventory information.")
@@ -137,6 +100,16 @@ def verifyOption(option):
         else:
             return False
     else:
+        try:
+            import paramiko
+        except ModuleNotFoundError:
+            print("You have selected to ssh direct,"
+                  " but don't have paramiko installed")
+            print("Attempting to install it now")
+            import subprocess
+            import sys
+            subprocess.check_call([sys.executable, "-m", "pip", "install", 'paramiko'])
+
         return True
 
 def updateConfFile(options):
@@ -151,9 +124,6 @@ def updateConfFile(options):
         conf = json.load(f, object_pairs_hook=OrderedDict)
 
     # Next add what we got
-    conf['api_username'] = options['api_creds']['username']
-    conf['api_password'] = options['api_creds']['password']
-    conf['domain'] = options['api_creds']['domain']
     if options['method'] == '1':
         conf['login_method'] = 'jlogin'
     else:
@@ -166,12 +136,25 @@ def updateConfFile(options):
         conf['ssh_username'] = options['creds'][0]
         conf['ssh_password'] = options['creds'][1]
 
+    # Remove default conf if unwanted
+    if 'Junipers' in conf['groups'] and 'Junipers' not in options['groups']:
+        print("\nIt looks like you did not create a group called Junipers")
+        print("There is one by default in the config file,")
+        print("just as an example, pointing to %s" %  conf['groups']['Junipers'])
+        ans = 'dummy'
+        while ans != 'k' and ans != 'd' and ans != '':
+            ans = input("(k)eep or (d)elete it? (k/D): ").lower()
+            if ans != 'k' and ans != 'd' and ans != '':
+                print("Please make a valid selection")
+
+        if ans != 'k':
+            del conf['groups']['Junipers']
+
     # Finally write it to the file
     with open('conf/XONJunosIBmaint.conf','w') as f:
         json.dump(conf, f, indent=4)
 
 if __name__ == '__main__':
-    checkDependancies()
     options = gatherInfo()
     choice = options['method']
     goAhead = verifyOption(choice)

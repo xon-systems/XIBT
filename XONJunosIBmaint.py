@@ -24,8 +24,6 @@ import re
 from subprocess import check_output, CalledProcessError, STDOUT
 from collections import OrderedDict
 
-from psychokinetic.client import Client
-
 # The output directory needs to exist,
 # this is where we are saving the results
 if not os.path.exists("output"):
@@ -192,46 +190,19 @@ def goGetThem(p, ips):
 if __name__ == '__main__':
     logging.config.fileConfig('conf/logging.conf')
     options = loadInputFile()
-    domain = options['domain']
-    api_user = options['api_username']
-    api_pass = options['api_password']
-    api_tenant_id = options['api_tenant_id']
-    # Checking to see if the config file has been updated with
-    # API login creds
-    if domain == 'obtainThisFromXON':
-        logging.error("Please update the domain entry in XONJunosIBmaint.conf - needs to be obtained from XON")
-    else:
-        loginMethod = options['login_method']
-        if loginMethod == "paramiko":
-            import paramiko
+    loginMethod = options['login_method']
+    if loginMethod == "paramiko":
+        import paramiko
 
-            fo = FetchOutput('paramiko',
-                             username=options['ssh_username'],
-                             password=options['ssh_password'])
-        else:
-            fo = FetchOutput(loginMethod)
-        # Connect to and log into
-        # API to XON's inventory manager:
-        try:
-            api = Client('https://quark.xon.co.za/api')
-            api.password(api_user, api_pass, domain)
-            auth = api.scope(domain,api_tenant_id)
-            # If we don't have valid credentials, api.password will raise
-            # luxon.exceptions.HTTPError: Access Denied Invalid credentials provided
-            # so auth will not exist. If there is no connectivity to quark,
-            # auth will also not exist
-            api.collect_endpoints('Region1','public')
-        except Exception as e:
-            msg = "Unable to connect to the XON API. "
-            msg += "Please make sure there is connectivity to quark.xon.co.za "
-            msg += "and that the API credentials are valid."
-            logging.error(msg)
-            msg = "Unable to connect to the XON API. Only logging results locally."
-            logging.info(msg)
-            logging.error("Error was '%s'" % e)
-        for p in options['groups']:
-            logging.info("Starting with: %s" % (p,))
-            if not os.path.exists("output/%s" % (p,)):
-                os.makedirs("output/%s" % (p,))
-            ips = loadHosts(options['groups'][p])
-            goGetThem(p, ips)
+        fo = FetchOutput('paramiko',
+                         username=options['ssh_username'],
+                         password=options['ssh_password'])
+    else:
+        fo = FetchOutput(loginMethod)
+
+    for p in options['groups']:
+        logging.info("Starting with: %s" % (p,))
+        if not os.path.exists("output/%s" % (p,)):
+            os.makedirs("output/%s" % (p,))
+        ips = loadHosts(options['groups'][p])
+        goGetThem(p, ips)

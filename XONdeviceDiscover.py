@@ -19,13 +19,21 @@
 
 from __future__ import absolute_import, division, print_function
 from builtins import *
-from easysnmp import Session
 import logging
 import logging.config
 import os.path
-import pyipcalc
+import ipaddress
 import sys
 import re
+
+try:
+    from easysnmp import Session
+except ModuleNotFoundError:
+    print("easysnmp is not installed, attempting to install it now")
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", 'easysnmp'])
+    from easysnmp import Session
 
 # The output directory needs to exist
 # this is where we are saving the log
@@ -59,7 +67,7 @@ def getOptions():
                           "(y)es or (n)o: (n): ")).lower()
         if ans2 == "y":
             next_ip = nextIP()
-            if next_ip not in subnet:
+            if not next_ip or type(next_ip) is str or next_ip not in subnet:
                 raise Exception(('The last ip is not '
                                  'in the current subnet'),
                                 next_ip, subnet)
@@ -84,13 +92,18 @@ def nextIP():
 
     with open(sys.argv[3]) as f:
         lines = f.readlines()
-    last = re.match('(.*):juniper:up', lines[-1])
-    if last and pyipcalc.validate_ip(last.group(1)):
-        int_ip = pyipcalc.ip_to_int(last.group(1))
-        next_ip = pyipcalc.int_to_ip(int_ip + 1)
-        return pyipcalc.IPNetwork(next_ip)
-    else:
+
+    if not len(lines):
         return None
+
+    last = re.match('(.*):juniper:up', lines[-1])
+    if last:
+        try:
+            return ipaddress.IPv4Address(last.group(1)) + 1
+        except ipaddress.AddressValueError:
+            return last.group(1)
+
+    return None
 
 
 def discover(subnet):
@@ -106,25 +119,23 @@ def discover(subnet):
     global file_open
     global next_ip
 
-    # Fixing subnet if we need to continue
-    # from a previous scan
-    if next_ip:
-        subnet = subnet[next_ip:]
-
     # Running through al the hosts in the subnet
     for ip in subnet:
-        session = Session(hostname=ip.first(), community=sys.argv[2],
+        if next_ip and ip < next_ip:
+            continue
+
+        session = Session(hostname=ip.exploded, community=sys.argv[2],
                           version=2, retries=1)
         try:
             sysdescription = session.get('1.3.6.1.2.1.1.1.0')
             if re.search('JUNOS ([^ ]+)', sysdescription.value):
-                logging.info("Found Juniper at %s" % (ip.first(),))
+                logging.info("Found Juniper at %s" % (ip.ip.exploded,))
                 with open(sys.argv[3], 'a') as f:
-                    f.write(ip.first() + ':juniper:up\n')
+                    f.write(ip.exploded + ':juniper:up\n')
             else:
-                logging.info("Skipping %s: Not Junos" % (ip.first(),))
+                logging.info("Skipping %s: Not Junos" % (ip.exploded,))
         except Exception as e:
-            logging.info('Skipping: %s: %s' % (ip.first(), str(e)))
+            logging.info('Skipping: %s: %s' % (ip.exploded, str(e)))
 
 
 # Main progaram
@@ -149,7 +160,7 @@ if __name__ == '__main__':
         logging.config.fileConfig('conf/logging.conf')
         subnet = sys.argv[1]
         try:
-            subnet = pyipcalc.IPNetwork(subnet)
+            subnet = ipaddress.ip_network(subnet)
         except:
             raise Exception('Ivalid IP', subnet)
         # Checking if the file already exists

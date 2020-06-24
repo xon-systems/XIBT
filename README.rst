@@ -72,22 +72,9 @@ Dependencies
 This script requires Python 3 to be installed. Most modern Linux distributions
 come with Python 3 already installed.
 
-It also requires the python module *psychokinetic*, which has the REST client
-used to make the API calls to the XON Inventory system. Install with:
+.. note::
 
-.. code:: bash
-
-    $ git clone -b development https://github.com/TachyonicProject/psychokinetic.git
-
-Once you have cloned the repo or downloaded a tarball from GitHub, you
-can install psychokinetic like this:
-
-.. code:: bash
-
-    $ cd psychokinetic
-    $ pip3 install .
-
-Next, you require API login details from XON systems. To obtain this, email support at xon.co.za.
+   If you choose to run the setup script, it will attempt the pip installations for you
 
 If you would like to auto-create the router.db file with the *XONdeviceDiscover.py*, you need it's dependancies:
 
@@ -95,7 +82,6 @@ If you would like to auto-create the router.db file with the *XONdeviceDiscover.
 
     $ sudo apt-get install libsnmp-dev
     $ sudo pip3 install easysnmp
-    $ sudo pip3 install pyipcalc
 
 If you choose to log in directly instead of making use of jlogin, you require the *paramiko* python library. Install it with:
 
@@ -145,13 +131,6 @@ based on your answers, run ``./setup.py`` with no arguments:
 .. code:: text
 
     $ ./setup.py
-    In order to make use of the XON Juniper Install Base
-    script, you require API login details from XON Systems
-    If you do not have these already, please email
-    support@xon.co.za in order to obtain it.
-    API login username: obtainThisFromXON
-    API login password: obtainThisFromXON
-    API login domain id: obtainThisFromXON
 
     The XON Junos Installation Base maintenance script will log into
     network devices in order to gather inventory information.
