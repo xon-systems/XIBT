@@ -69,7 +69,7 @@ The options in the ``conf/XONJunosIBmaint.conf`` file for ``login_method`` are c
 
 Dependencies
 ============
-This script requires Python 3 to be installed. Most modern Linux distributions
+This script requires Python 3 and python3-pip to be installed. Most modern Linux distributions
 come with Python 3 already installed.
 
 .. note::
