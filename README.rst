@@ -18,7 +18,6 @@ These are some of the main scripts used in this tool.
 * logs into Juniper devices
 * grabs the output of "show chassis hardware"
 * saves the results locally, and
-* submits it to XON systems via secure API.
 
 *conf/XONJunosIBmaint.conf* - the main options file. Here you specify things such as:
 
