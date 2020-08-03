@@ -103,7 +103,6 @@ update ``conf/XONJunosIBmaint.conf`` with the appropriate values.
 
 
 
-
 Usage
 =====
 
@@ -170,6 +169,11 @@ group configured in the config file. Inside those directorries, should be XML fi
 each of the devices in the router.db file.
 
 Also check the file ``output/output.log`` for any errors or notifications.
+
+It will also create a file in the ``output`` directory called ``combined.xml``. This file
+containes the contents of all the other files combined, in the format that Juniper requires
+it. If this command is run a second time, it will append the output to the existing
+``combined.xml`` file.
 
 Cron the script to be run periodically
 --------------------------------------

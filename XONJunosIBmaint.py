@@ -21,8 +21,10 @@ import logging
 import logging.config
 import os
 import re
+import glob
 from subprocess import check_output, CalledProcessError, STDOUT
 from collections import OrderedDict
+
 
 # The output directory needs to exist,
 # this is where we are saving the results
@@ -111,7 +113,7 @@ class FetchOutput:
                     if cmd_start:
                         incmd = True
                         got_output = True
-                    elif re.search('%s> quit' % (hostname,), line):
+                    elif re.search('%s>' % (hostname,), line):
                         incmd = False
                     if incmd:
                         complete_output += line + '\n'
@@ -139,8 +141,10 @@ class FetchOutput:
                             password=self.password, timeout=10)
                 ssh_stdin, version, ssh_stderr = ssh.exec_command('show version')
                 version = version.read().decode()
+                hostname = ip
                 try:
                     filename = re.search('Hostname: (.*)\n', version).group(1)
+                    hostname = filename
                 except:
                     pass
                 # Finally executing commands
@@ -148,7 +152,7 @@ class FetchOutput:
                     commands = f.readlines()
                 for c in commands:
                     ssh_stdin, out, ssh_stderr = ssh.exec_command(c)
-                    complete_output += c + '\n'
+                    complete_output += "user@" + hostname + "> " + c
                     complete_output += out.read().decode()
                     complete_output += '\n\n\n'
                 ssh.close()
@@ -206,3 +210,12 @@ if __name__ == '__main__':
             os.makedirs("output/%s" % (p,))
         ips = loadHosts(options['groups'][p])
         goGetThem(p, ips)
+
+    combined_xml = ''
+
+    for filename in glob.iglob('./output/**/*.xml', recursive=True):
+        with open(filename) as f:
+            hostname = os.path.basename(filename)
+            with open('output/combined.txt', 'a') as c:
+                c.write(f.read())
+                c.write('\n')
