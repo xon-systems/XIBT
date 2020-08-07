@@ -26,6 +26,10 @@ import ipaddress
 import sys
 import re
 
+# Older versions of Python had ImportError instead of ModuleNotFoundError
+
+ModuleNotFoundError = ImportError
+
 try:
     from easysnmp import Session
 except ModuleNotFoundError:
