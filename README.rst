@@ -22,7 +22,6 @@ These are some of the main scripts used in this tool.
 *conf/XONJunosIBmaint.conf* - the main options file. Here you specify things such as:
 
 * Login method
-* API username/password
 * inventory file location
 * Device login credentials (if required)
 
@@ -170,10 +169,11 @@ each of the devices in the router.db file.
 
 Also check the file ``output/output.log`` for any errors or notifications.
 
-It will also create a file in the ``output`` directory called ``combined.xml``. This file
+It will also create a file in the ``output`` directory called ``install_base_YYYY_MM_DD.txt``,
+where ``YYYY_MM_DD`` will be today's date. This file
 containes the contents of all the other files combined, in the format that Juniper requires
 it. If this command is run a second time, it will append the output to the existing
-``combined.xml`` file.
+``install_base_YYYY_MM_DD.txt`` file.
 
 Cron the script to be run periodically
 --------------------------------------

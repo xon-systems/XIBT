@@ -24,6 +24,7 @@ import re
 import glob
 from subprocess import check_output, CalledProcessError, STDOUT
 from collections import OrderedDict
+from datetime import datetime
 
 
 # The output directory needs to exist,
@@ -211,11 +212,12 @@ if __name__ == '__main__':
         ips = loadHosts(options['groups'][p])
         goGetThem(p, ips)
 
-    combined_xml = ''
+    combined_fn = 'install_base_' + datetime.now().strftime("%Y_%m_%d")
+    combined_fn += '.txt'
 
     for filename in glob.iglob('./output/**/*.xml', recursive=True):
         with open(filename) as f:
             hostname = os.path.basename(filename)
-            with open('output/combined.txt', 'a') as c:
+            with open('output/'+combined_fn, 'a') as c:
                 c.write(f.read())
                 c.write('\n')
