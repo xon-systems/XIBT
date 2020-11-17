@@ -133,7 +133,7 @@ def discover(subnet):
         try:
             sysdescription = session.get('1.3.6.1.2.1.1.1.0')
             if re.search('JUNOS ([^ ]+)', sysdescription.value):
-                logging.info("Found Juniper at %s" % (ip.ip.exploded,))
+                logging.info("Found Juniper at %s" % (ip.exploded,))
                 with open(sys.argv[3], 'a') as f:
                     f.write(ip.exploded + ':juniper:up\n')
             else:
